@@ -5,15 +5,13 @@
 """
 
 
-
-
 import pickle
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
-
+from sklearn.cluster import KMeans
 
 
 
@@ -40,7 +38,7 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
 
 ### load in the dict of dicts containing all the data on each person in the dataset
 data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r") )
-### there's an outlier--remove it! 
+### there's an outlier--remove it!
 data_dict.pop("TOTAL", 0)
 
 
@@ -48,10 +46,19 @@ data_dict.pop("TOTAL", 0)
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+#feature_3 = "total_payments"
 poi  = "poi"
 features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
+
+exercised_stock_options = data[:, 2]
+print "max exercised_stock_options", max(exercised_stock_options)
+print "min exercised_stock_options", min(exercised_stock_options[exercised_stock_options != 0])
+
+salary = data[:, 1]
+print "max salary", max(salary)
+print "min salary", min(salary[salary != 0])
 
 
 ### in the "clustering with 3 features" part of the mini-project,
@@ -64,10 +71,10 @@ plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
-
-
-
-
+X = finance_features
+kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
+print kmeans
+pred = kmeans.labels_
 ### rename the "name" parameter when you change the number of features
 ### so that the figure gets saved to a different file
 try:
